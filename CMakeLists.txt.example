@@ -1,0 +1,59 @@
+# =============================================================================
+# OPTIONAL addon CMakeLists.txt
+# =============================================================================
+#
+# You usually DON'T need this file. If the addon root has NO CMakeLists.txt,
+# TrussC auto-collects `src/**` (.cpp/.c/.mm/.m) and `libs/*/{src,include}`,
+# links TrussC, and adds `src/` + `include/` to the include path. That covers
+# most addons.
+#
+# Add a real CMakeLists.txt (rename this file to `CMakeLists.txt`) ONLY when
+# you need full control, e.g.:
+#   - pulling an external dependency via FetchContent
+#   - custom compile definitions / flags
+#   - platform-specific link libraries
+#   - code generation (configure_file, etc.)
+#
+# When this file is named `CMakeLists.txt`, TrussC runs `add_subdirectory()` on
+# it instead of auto-collecting. You then own the target completely — including
+# globbing your own sources and linking TrussC.
+# =============================================================================
+
+cmake_minimum_required(VERSION 3.16)
+
+# Must match the repository / addon folder name. use_addon() links the host
+# app against a target with exactly this name.
+set(ADDON_NAME tcxTemplate)
+
+# --- Example: fetch an external library -------------------------------------
+# include(FetchContent)
+# FetchContent_Declare(
+#     somelib
+#     GIT_REPOSITORY https://github.com/owner/somelib.git
+#     GIT_TAG v1.2.3
+# )
+# set(SOMELIB_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+# FetchContent_MakeAvailable(somelib)
+
+# --- Collect this addon's sources -------------------------------------------
+file(GLOB ADDON_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
+file(GLOB ADDON_HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/src/*.h)
+
+# macOS / iOS Objective-C++ sources, if any. Guard platform code with #ifdef
+# inside the files; CMake compiles whatever you list here on every platform.
+# file(GLOB ADDON_OBJCXX ${CMAKE_CURRENT_SOURCE_DIR}/src/*.mm)
+
+add_library(${ADDON_NAME} STATIC ${ADDON_SOURCES} ${ADDON_HEADERS})
+
+target_include_directories(${ADDON_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
+
+# Always link TrussC. Add your external libs after it.
+target_link_libraries(${ADDON_NAME} PUBLIC TrussC)
+# target_link_libraries(${ADDON_NAME} PUBLIC somelib)
+
+# --- Platform-specific bits (examples) --------------------------------------
+# if(APPLE)
+#     target_link_libraries(${ADDON_NAME} PRIVATE "-framework AVFoundation")
+# elseif(WIN32)
+#     target_link_libraries(${ADDON_NAME} PRIVATE ws2_32)
+# endif()
