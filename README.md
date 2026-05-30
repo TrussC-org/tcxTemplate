@@ -82,47 +82,46 @@ sources in `src/`.
 
 ---
 
-## 4. `addon.json` reference (the confusing part, explained)
+## 4. `addon.json`
 
-`addon.json` is the metadata the registry crawler, the website, and `trusscli`
-read. **It must be valid JSON — no comments allowed** (the crawler pipes it
-through `jq`). An empty `{}` is enough to be discovered, but fill in the fields
-to be useful.
+Metadata for the registry crawler, the website, and `trusscli`. Must be **valid
+JSON — no comments** (the crawler pipes it through `jq`). An empty `{}` already
+makes the repo a discoverable addon.
 
-This template ships a sensible minimal file:
+**To be useful, fill these five — that's the whole "minimum":**
 
 ```json
 {
-  "description": "One-line summary of what your addon does (shown in listings)",
+  "description": "One-line summary of what your addon does",
   "author": "Your Name <you@example.com>",
   "license": "MIT",
-  "trussc_version": ">=0.5.0",
   "category": "utilities",
   "keywords": ["example", "template"]
 }
 ```
 
-### Every field
+| Field | What it does |
+|-------|--------------|
+| `description` | One-line summary in listings / `trusscli addon list`. |
+| `author` | `"Name"` or `"Name <email>"`. |
+| `license` | SPDX id (`"MIT"`, `"Apache-2.0"`…). Missing → shows "Unknown". |
+| `category` | One value from the fixed set ([below](#category--pick-exactly-one)). Unknown/omitted → `"misc"`. |
+| `keywords` | Free tags for search/filtering within a category. |
 
-| Field | Used in practice? | What it does |
-|-------|-------------------|--------------|
-| `description` | ✅ commonly | One-line summary in listings / `trusscli addon list`. |
-| `author` | ✅ commonly | `"Name"` or `"Name <email>"`. |
-| `license` | ✅ commonly | SPDX id (`"MIT"`, `"Apache-2.0"`…). Missing → shows "Unknown". |
-| `category` | ✅ commonly | One value from the fixed set below. Unknown/omitted → `"misc"`. |
-| `keywords` | ✅ commonly | Free tags for search/filtering within a category. |
-| `trussc_version` | ⚠️ sometimes | Version range you target, e.g. `">=0.5.0"`. Informational. |
-| `screenshot` | ⚠️ sometimes | Relative path (`"docs/preview.png"`) or absolute URL. Shown on the site. |
-| `version` | ⚠️ rarely | Self-reported version. **If omitted, the crawler uses your latest git tag** (recommended — tag releases instead of hand-editing this). |
-| `name` | ⚠️ rarely | Informational only. The registry **always** uses the repo name as the identifier, so you can leave this out. |
-| `demo_url` | ⚠️ rarely | Link to a live demo (e.g. a TrussSketch page). |
-| `platforms` | ❌ almost never | Array of platforms you've **tested**: `"macos" "win" "linux" "web" "android" "ios"`. Omit it if you haven't deliberately verified a list — an empty `[]` means "supports nothing", which is worse than absent. |
-| `dependencies` | ❌ rarely | Other addons yours needs. See below. |
+### Optional fields
 
-> **Rule of thumb:** fill the top 5 (`description`, `author`, `license`,
-> `category`, `keywords`). Add `screenshot`/`trussc_version` if handy. Ignore
-> `platforms`/`version`/`name`/`demo_url` unless you have a specific reason —
-> almost no published addon sets them.
+Everything else is optional — add only what's relevant, roughly in this order of
+how often it's actually used:
+
+| Field | What it does |
+|-------|--------------|
+| `dependencies` | Other addons yours needs ([below](#dependencies--other-addons-yours-needs)). Comes up fairly often. |
+| `screenshot` | Relative path (`"docs/preview.png"`) or absolute URL. Shown on the site. |
+| `demo_url` | Link to a live demo (e.g. a TrussSketch page). |
+| `version` | Self-reported version. If omitted, the crawler uses your latest git tag — preferred, so just tag releases. |
+| `trussc_version` | TrussC version range you target, e.g. `">=0.5.0"`. Informational; least-used field. |
+| `platforms` | Platforms you've **tested**: `"macos" "win" "linux" "web" "android" "ios"`. Omit unless verified — empty `[]` means "supports nothing". |
+| `name` | Informational only; the registry always uses the repo name. Leave it out. |
 
 ### `category` — pick exactly one
 
