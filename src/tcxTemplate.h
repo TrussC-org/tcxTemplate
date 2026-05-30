@@ -4,8 +4,10 @@
 // tcxTemplate - A minimal TrussC addon template.
 //
 // Rename everything ("tcxTemplate" / "Template") to your addon name, then
-// implement your feature. The class below just draws a pulsing circle so the
-// example has something to show.
+// replace this stub with your feature. The class does nothing useful on
+// purpose — it just logs a greeting — so it doesn't bias your addon toward any
+// particular shape (per-frame drawing, networking, pure logic, ...). The house
+// style and conventions live in README.md.
 // =============================================================================
 
 #include <TrussC.h>
@@ -18,24 +20,14 @@ class Template {
 public:
     Template() = default;
 
-    // Call once from your app's setup().
-    void setup();
+    // Setters return *this so calls can chain — a TrussC idiom:
+    //   Template t; t.setName("foo").hello();
+    Template& setName(const std::string& name) { name_ = name; return *this; }
 
-    // Call every frame from update() / draw().
-    void update();
-    void draw();
-
-    // Setters return *this for method chaining:
-    //   tpl.setColor(colors::cornflowerBlue).setRadius(80.0f);
-    Template& setColor(const tc::Color& c) { color_ = c; return *this; }
-    Template& setRadius(float r) { baseRadius_ = r; return *this; }
-
-    float getRadius() const { return currentRadius_; }
+    void hello();   // replace with your addon's real API
 
 private:
-    tc::Color color_ = tc::Color(0.4f, 0.6f, 0.9f);
-    float baseRadius_ = 60.0f;     // radius midpoint, in pixels
-    float currentRadius_ = 60.0f;  // animated radius for this frame
+    std::string name_ = "world";
 };
 
 } // namespace tcx

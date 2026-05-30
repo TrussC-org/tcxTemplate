@@ -1,2 +1,2 @@
-# TrussC addons - one per line. This example uses the addon in this repo.
+# TrussC addons - one addon per line
 tcxTemplate
