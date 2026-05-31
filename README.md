@@ -39,7 +39,7 @@ Then rename things:
 tcxYourAddon/
 ├── addon.json              # registry metadata (see §4)
 ├── README.md
-├── LICENSE
+├── LICENSES.md             # this addon's license + any bundled deps/assets
 ├── src/                    # ← your addon code (.h / .cpp / .mm / .m)
 │   ├── tcxYourAddon.h
 │   └── tcxYourAddon.cpp
@@ -283,5 +283,12 @@ finds it within a day and regenerates the registry (`registry.json` on
 
 ## License
 
-This template is MIT. Replace `LICENSE` with your own and update the `license`
-field in `addon.json`.
+This template is MIT. Edit `LICENSES.md` — put your name/year on the addon's
+own section, and add one `---`-separated section for **each** third-party
+library you bundle/fetch and **each** data asset you ship (state its source and
+its license). Keep the `license` field in `addon.json` set to your addon's own
+SPDX id (`"MIT"`, etc.).
+
+> Convention: the file is `LICENSES.md` (plural) — addons routinely vendor deps
+> and assets, so the file is built to list them all, not just the addon's own
+> license.
