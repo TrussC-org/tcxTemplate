@@ -182,6 +182,37 @@ Drop it under `libs/somelib/` with `src/` and/or `include/` subfolders — auto
 collection picks those up with no CMakeLists at all. Add `libs/` to
 `.gitignore` if you fetch it instead of vendoring.
 
+### Shipping a runtime file next to the app (DLL / dylib / metallib / data)
+
+Some addons need a file to sit beside the final executable at **runtime** — a
+Windows sensor-SDK `.dll`, a macOS `.dylib`/framework, a compiled `.metallib`,
+a data blob. From a custom `CMakeLists.txt`, register it with:
+
+```cmake
+tc_addon_bundle_file(<path> [MACOS_DEST <subdir>])
+```
+
+TrussC copies it to the right place per platform, into whatever app consumes
+your addon — no need to know the app's target name:
+
+- **macOS:** into `YourApp.app/Contents/<MACOS_DEST>` (default `Resources`; use
+  `Frameworks` for dylibs/frameworks).
+- **Windows / Linux:** next to the executable (so the loader finds the DLL / `.so`).
+
+```cmake
+# e.g. a sensor SDK DLL that must sit beside the .exe on Windows:
+if(WIN32)
+    tc_addon_bundle_file("${CMAKE_CURRENT_SOURCE_DIR}/libs/sensor/sensor.dll")
+endif()
+# e.g. a generated Metal library into the app's Resources:
+tc_addon_bundle_file("${CMAKE_CURRENT_BINARY_DIR}/default.metallib" MACOS_DEST Resources)
+```
+
+Generated files work too (e.g. a `metallib` produced by `add_custom_command`) —
+just `add_dependencies()` your addon target on the generator so the file exists
+before the app's post-build copy runs. Real example: **`tcxSyphon`** compiles
+Syphon's shaders to `default.metallib` and bundles it this way.
+
 ---
 
 ## 6. Platform-specific code

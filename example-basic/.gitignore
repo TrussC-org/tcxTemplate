@@ -1,8 +1,0 @@
-# Build artifacts (regenerate with trusscli)
-bin/
-build/
-build-*/
-CMakePresets.json
-*.dSYM/
-.vscode/
-.DS_Store
