@@ -280,6 +280,24 @@ That's the whole file — **nothing to edit after renaming the addon.** It:
 - so a fresh copy of this template goes **green out of the box** (it just
   verifies the example compiles).
 
+The shipped `on:` block runs CI on **every branch** (`branches: ['**']`) plus
+`v*` tags and `main`-targeted PRs — so a push never silently skips CI, and no
+branch name is "magic." It's cheap (the `trusscli` build is cached per repo and
+shared across branches). If your addon's CI is genuinely too heavy or low-value
+to run on every push, narrow it to `branches: [main]` (opt-out).
+
+### External SDKs (`setup_script`)
+
+If your addon needs a vendor SDK that isn't an apt package (a depth camera,
+capture device, …), the reusable workflow can't install it for you — but it
+gives you a hook. Pass a `setup_script`: bash that runs on every platform just
+before the build, branches on `$RUNNER_OS`, downloads the SDK, and exports what
+the build needs via `$GITHUB_ENV` (e.g. `CMAKE_PREFIX_PATH` so `find_package`
+resolves it). Combine with `addon.json` `"platforms"` to drop unsupported OSes.
+See the [ci-actions README](https://github.com/TrussC-org/ci-actions#external-sdks-setup_script)
+and [`tcxOrbbec`](https://github.com/tettou771/tcxOrbbec/blob/main/.github/workflows/ci.yml)
+for a worked example.
+
 ### Adding tests (optional, opt-in)
 
 Behavioral tests are **opt-in by the presence of a `tests/` directory** — this
