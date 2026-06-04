@@ -121,7 +121,7 @@ how often it's actually used:
 | `demo_url` | Link to a live demo (e.g. a TrussSketch page). |
 | `version` | Self-reported version. If omitted, the crawler uses your latest git tag — preferred, so just tag releases. |
 | `trussc_version` | TrussC version range you target, e.g. `">=0.5.0"`. Informational; least-used field. |
-| `platforms` | Platforms you've **tested**: `"macos" "win" "linux" "web" "android" "ios"`. Omit unless verified — empty `[]` means "supports nothing". |
+| `platforms` | Platforms your addon targets, e.g. `["macos","windows","linux"]`. **Also drives CI** — the reusable workflow builds exactly these. Omit → desktop default (`macos`/`windows`/`linux`). `web`/`android`/`ios` are recognized but **not built by CI yet** (warning, not a failure). `win`/`osx` are accepted as aliases. |
 | `name` | Informational only; the registry always uses the repo name. Leave it out. |
 
 ### `category` — pick exactly one
@@ -261,7 +261,48 @@ devices lacking the hardware.
 
 ---
 
-## 7. Publishing your addon
+## 7. Continuous integration & tests
+
+This template ships a tiny `.github/workflows/ci.yml` that calls the TrussC-org
+reusable workflow:
+
+```yaml
+jobs:
+  build:
+    uses: TrussC-org/ci-actions/.github/workflows/build-addon.yml@v1
+```
+
+That's the whole file — **nothing to edit after renaming the addon.** It:
+
+- auto-detects the addon name from the repo, so a renamed copy keeps working;
+- builds your addon and **every `example-*/` directory** on the platforms from
+  `addon.json` (default: macOS / Windows / Linux — see §4);
+- so a fresh copy of this template goes **green out of the box** (it just
+  verifies the example compiles).
+
+### Adding tests (optional, opt-in)
+
+Behavioral tests are **opt-in by the presence of a `tests/` directory** — this
+template ships none, so nothing runs until you add one. To opt in, create a
+normal TrussC console project under `tests/` whose `main()` returns non-zero on
+failure:
+
+```
+tcxYourAddon/
+└── tests/
+    ├── addons.make        # lists this addon
+    └── src/main.cpp        # int main() { ...assert...; return failures; }
+```
+
+CI then builds and runs it automatically (a non-zero exit fails the job),
+skipping it entirely when absent. See
+[`tcxPly/tests`](https://github.com/tettou771/tcxPly/tree/main/tests) for a
+complete example. (Console only, so it runs headless on all CI runners — no
+window.)
+
+---
+
+## 8. Publishing your addon
 
 No pull request needed — the registry discovers addons by GitHub **topic**:
 
