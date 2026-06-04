@@ -3,10 +3,9 @@ name: CI
 on:
   workflow_dispatch:
   push:
-    branches: [main]
+    branches: ['**']   # every branch: a push never silently skips CI. Narrow to [main] if CI is too heavy for this addon.
     tags: ['v*']
   pull_request:
-    branches: [main]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
