@@ -28,7 +28,8 @@ Then rename things:
 |------------------|-----------|
 | repo / folder name `tcxTemplate` | `tcxYourAddon` |
 | `src/tcxTemplate.{h,cpp}` | `src/tcxYourAddon.{h,cpp}` |
-| class `tcx::Template` | `tcx::YourClass` |
+| sub-namespace `tcx::myaddon` | `tcx::youraddon` (short lowercase) |
+| class `tcx::myaddon::Template` | `tcx::youraddon::YourClass` |
 | `addon.json` fields | your metadata |
 
 ---
@@ -54,7 +55,12 @@ tcxYourAddon/
 
 **Naming conventions** (match the rest of TrussC):
 - Repo / folder / library target: `tcxPascalCase` (e.g. `tcxOsc`).
-- Public namespace: `tcx`. Users write `using namespace tcx;`, so keep names short.
+- **Public namespace: `tcx::<addonname>`** — each addon gets its own sub-namespace
+  (`tcxOsc` → `tcx::osc`, `tcxBox2d` → `tcx::box2d`), so two addons can both define
+  a `World` / `Client` without clashing. Users opt in with `using namespace tcx::<addonname>;`.
+  Keep names short *inside* the sub-namespace. (Framework core lives in `tc`.)
+  Migrating from flat `tcx::` / legacy `trussc::`? Keep silent compat aliases until
+  v1.0.0 — see tcxOsc for the pattern.
 - Files: `tcxXxx.h`, types `PascalCase`, functions `camelCase`.
 - Colors are `0.0–1.0` floats, angles are **radians**, use `TAU` (= 2π) not `PI`.
 - Setters return `*this` for chaining; log with `tc::logNotice/logWarning/logError`,

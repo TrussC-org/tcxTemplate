@@ -5,6 +5,7 @@
 
 using namespace tc;
 using namespace tcx;
+using namespace tcx::myaddon;   // this addon's sub-namespace (see README §Naming)
 
 class tcApp : public App {
 public:

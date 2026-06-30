@@ -3,18 +3,26 @@
 // =============================================================================
 // tcxTemplate - A minimal TrussC addon template.
 //
-// Rename everything ("tcxTemplate" / "Template") to your addon name, then
-// replace this stub with your feature. The class does nothing useful on
-// purpose — it just logs a greeting — so it doesn't bias your addon toward any
-// particular shape (per-frame drawing, networking, pure logic, ...). The house
-// style and conventions live in README.md.
+// Rename everything ("tcxTemplate" / "Template" / the sub-namespace "myaddon")
+// to your addon name, then replace this stub with your feature. The class does
+// nothing useful on purpose — it just logs a greeting — so it doesn't bias your
+// addon toward any particular shape (per-frame drawing, networking, pure logic,
+// ...). The house style and conventions live in README.md.
 // =============================================================================
 
 #include <TrussC.h>
 
-// Addons live in the `tcx` namespace (framework core uses `tc`). Users do
-// `using namespace tcx;`, so keep public names short and unprefixed.
-namespace tcx {
+// Each addon gets its OWN sub-namespace under `tcx`: `tcx::<addonname>`, where
+// <addonname> is your addon's short lowercase name (tcxOsc -> tcx::osc,
+// tcxBox2d -> tcx::box2d). This isolates every addon's types, so two addons can
+// each define a `World` / `Client` / `Message` without clashing. Users opt in
+// per addon with `using namespace tcx::<addonname>;`. (Framework core is `tc`.)
+//
+// Migrating an existing addon that shipped in flat `tcx::` or legacy `trussc::`?
+// Move the definitions here, then add temporary silent compat aliases
+// (`namespace tcx { using myaddon::Foo; }` and/or `namespace trussc { ... }`) —
+// see tcxOsc. Those compat layers are removed at v1.0.0.
+namespace tcx::myaddon {
 
 class Template {
 public:
@@ -30,4 +38,4 @@ private:
     std::string name_ = "world";
 };
 
-} // namespace tcx
+} // namespace tcx::myaddon

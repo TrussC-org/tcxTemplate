@@ -3,10 +3,10 @@
 using namespace std;
 using namespace tc;
 
-namespace tcx {
+namespace tcx::myaddon {
 
 void Template::hello() {
     logNotice() << "Hello, " << name_ << "!";
 }
 
-} // namespace tcx
+} // namespace tcx::myaddon
