@@ -13,10 +13,19 @@
 #include <TrussC.h>
 
 // Each addon gets its OWN sub-namespace under `tcx`: `tcx::<addonname>`, where
-// <addonname> is your addon's short lowercase name (tcxOsc -> tcx::osc,
-// tcxBox2d -> tcx::box2d). This isolates every addon's types, so two addons can
-// each define a `World` / `Client` / `Message` without clashing. Users opt in
-// per addon with `using namespace tcx::<addonname>;`. (Framework core is `tc`.)
+// <addonname> is the addon name minus the `tcx` prefix, ALL lowercase — no
+// abbreviation, no camelCase (tcxOsc -> tcx::osc, tcxDepthCamera ->
+// tcx::depthcamera, NOT tcx::depthCamera or tcx::dc). This isolates every
+// addon's types, so two addons can each define a `World` / `Client` / `Message`
+// without clashing, and all-lowercase keeps the spelling mechanically derivable
+// and visually distinct from PascalCase types. Users opt in per addon with
+// `using namespace tcx::<addonname>;`. (Framework core is `tc`.)
+//
+// Header hygiene: NO `using namespace` in headers — not at file scope, not
+// inside your namespace; it silently injects names into every consumer.
+// Qualify explicitly (`tc::Vec2`, `std::string`). File-scope using-directives
+// in a .cpp are fine. Internal helpers: nested `detail` namespace (header) or
+// anonymous namespace (.cpp).
 //
 // Migrating an existing addon that shipped in flat `tcx::` or legacy `trussc::`?
 // Move the definitions here, then add temporary silent compat aliases

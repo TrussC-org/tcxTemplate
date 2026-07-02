@@ -28,7 +28,7 @@ Then rename things:
 |------------------|-----------|
 | repo / folder name `tcxTemplate` | `tcxYourAddon` |
 | `src/tcxTemplate.{h,cpp}` | `src/tcxYourAddon.{h,cpp}` |
-| sub-namespace `tcx::myaddon` | `tcx::youraddon` (short lowercase) |
+| sub-namespace `tcx::myaddon` | `tcx::youraddon` (addon name minus `tcx`, all lowercase — `tcxDepthCamera` → `tcx::depthcamera`) |
 | class `tcx::myaddon::Template` | `tcx::youraddon::YourClass` |
 | `addon.json` fields | your metadata |
 
@@ -55,13 +55,37 @@ tcxYourAddon/
 
 **Naming conventions** (match the rest of TrussC):
 - Repo / folder / library target: `tcxPascalCase` (e.g. `tcxOsc`).
-- **Public namespace: `tcx::<addonname>`** — each addon gets its own sub-namespace
-  (`tcxOsc` → `tcx::osc`, `tcxBox2d` → `tcx::box2d`), so two addons can both define
-  a `World` / `Client` without clashing. Users opt in with `using namespace tcx::<addonname>;`.
-  Keep names short *inside* the sub-namespace. (Framework core lives in `tc`.)
-  Migrating from flat `tcx::` / legacy `trussc::`? Keep silent compat aliases until
-  v1.0.0 — see tcxOsc for the pattern.
-- Files: `tcxXxx.h`, types `PascalCase`, functions `camelCase`.
+- **Public namespace: `tcx::<addonname>`** — each addon gets its own sub-namespace,
+  so two addons can both define a `World` / `Client` without clashing. Users opt in
+  with `using namespace tcx::<addonname>;`. (Framework core lives in `tc`.)
+  - **The sub-namespace is the addon name minus the `tcx` prefix, all lowercase.**
+    No abbreviation, no camelCase: `tcxOsc` → `tcx::osc`, `tcxBox2d` → `tcx::box2d`,
+    `tcxDepthCamera` → `tcx::depthcamera` (NOT `tcx::depthCamera` or `tcx::dc`).
+    All-lowercase keeps the spelling mechanically derivable (tooling can check it)
+    and lets case mark the part of speech, as everywhere else in TrussC:
+    `lowercase::` = namespace, `PascalCase` = type, `camelCase` = function.
+  - Keep names short *inside* the sub-namespace — the namespace already says whose
+    `Client` it is, so prefer `tcx::mqtt::Client` over `tcx::mqtt::MQTTClient`
+    (existing addons keep their historical names; apply this to new code).
+  - Internal helpers that must live in a header go in a nested `detail` namespace;
+    helpers in a `.cpp` go in an anonymous namespace.
+  - Migrating an addon from flat `tcx::` / legacy `trussc::`? Keep silent compat
+    aliases until v1.0.0 (no `[[deprecated]]` attribute — it would warn on idiomatic
+    unqualified use under `using namespace`):
+    ```cpp
+    namespace tcx    { using osc::OscMessage; } // deprecated: remove at v1.0.0
+    namespace trussc { using tcx::osc::OscMessage; } // deprecated: remove at v1.0.0
+    ```
+    See tcxOsc for the full pattern.
+- **No `using namespace` in headers.** A using-directive in a public header (at file
+  scope or inside your namespace) silently injects names into every consumer — and
+  into your own namespace's lookup — so qualify explicitly: `tc::Vec2`, `std::string`.
+  File-scope `using namespace std; using namespace tc;` in a **.cpp** is fine (it's
+  TU-local, and it's the normal TrussC app style).
+- Files: `tcxXxx.h` — the `tcx` prefix is required because **every loaded addon's
+  `src/` shares one include path**; a generic name like `Types.h` or `Client.h` will
+  eventually collide with another addon's header. The prefix is your filename's
+  namespace. Types `PascalCase`, functions `camelCase`.
 - Colors are `0.0–1.0` floats, angles are **radians**, use `TAU` (= 2π) not `PI`.
 - Setters return `*this` for chaining; log with `tc::logNotice/logWarning/logError`,
   not `cout` (stdout is reserved for the MCP channel).
