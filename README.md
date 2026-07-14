@@ -89,6 +89,9 @@ tcxYourAddon/
 - Colors are `0.0–1.0` floats, angles are **radians**, use `TAU` (= 2π) not `PI`.
 - Setters return `*this` for chaining; log with `tc::logNotice/logWarning/logError`,
   not `cout` (stdout is reserved for the MCP channel).
+- **MCP tools an addon registers are named `tcx_<addon>_*`** (e.g. tcxImGui
+  registers `tcx_imgui_click`). `tc_*` is reserved for core-provided tools, and
+  unprefixed names belong to the app author — never squat there.
 
 ---
 
