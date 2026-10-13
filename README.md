@@ -88,10 +88,37 @@ tcxYourAddon/
   namespace. Types `PascalCase`, functions `camelCase`.
 - Colors are `0.0–1.0` floats, angles are **radians**, use `TAU` (= 2π) not `PI`.
 - Setters return `*this` for chaining; log with `tc::logNotice/logWarning/logError`,
-  not `cout` (stdout is reserved for the MCP channel).
-- **MCP tools an addon registers are named `tcx_<addon>_*`** (e.g. tcxImGui
-  registers `tcx_imgui_click`). `tc_*` is reserved for core-provided tools, and
-  unprefixed names belong to the app author — never squat there.
+  not `cout`, so messages reach the logger's sinks and listeners. On desktop,
+  Notice goes to stdout and Warning/Error to stderr (subject to log levels).
+  MCP uses HTTP only (`POST /mcp`); it does not use stdout.
+- **Prefer `tcx_<addon>_*` for addon MCP tools** (e.g. tcxImGui registers
+  `tcx_imgui_click`). Only `tc_` is reserved for core (registration is rejected);
+  `tcx_` and unprefixed names are free for app and third-party tools too.
+- **Declare `.level()` on every addon tool**: `ReadOnly` for inspection,
+  `Control` for mutations. Levels are `Public` < `ReadOnly` < `Control`;
+  omitting `.level()` defaults to `Public`, so choose that level deliberately.
+  Register during addon setup regardless of the app's grant — registration
+  never starts a listener. **The app owns the grant: an addon never calls
+  `mcp::setToolLevel()`.** The app calls
+  `mcp::setToolLevel(mcp::ToolLevel::ReadOnly)` (or `Control`) in `setup()` to
+  grant access and open HTTP on native builds. To serve Public tools without
+  raising the grant, the app explicitly calls `mcp::startHttpServer()`.
+  For example, in your addon's `.cpp` setup code (with `using namespace tc;`,
+  as in `src/tcxTemplate.cpp`):
+
+  ```cpp
+  mcp::tool("tcx_example_get_info", "Describe this addon")
+      .level(mcp::ToolLevel::ReadOnly)
+      .bind(std::function<json()>([] { return json{{"name", "tcxExample"}}; }));
+  ```
+
+  For native development, `trusscli run --mcp` (or `build --mcp`) makes a dev build:
+  Control access, automatic HTTP startup, `[MCP]` in the title and a warning.
+  Building without `--mcp` turns that dev switch off again. In a default Public
+  build, `TRUSSC_MCP=1` or `TRUSSC_MCP_PORT` opens only loopback `tc_get_health`,
+  without exposing addon tools. `TRUSSC_MCP=0` prevents HTTP startup even in dev
+  builds. See [TrussC's MCP guide](https://github.com/TrussC-org/TrussC/blob/main/docs/AI_AUTOMATION.md)
+  for environment settings and grants.
 
 ---
 
